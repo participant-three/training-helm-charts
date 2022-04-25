@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+ 2 kind: Deployment
+ 3 metadata:
+ 4   name: hello-world-configmap
+ 5   labels:
+ 6     app: hello-world-configmap
+ 7 spec:
+ 8   replicas: 3
+ 9   selector:
+10     matchLabels:
+11       app: hello-world-configmap
+12   template:
+13     metadata:
+14       labels:
+15         app: hello-world-configmap
+16     spec:
+17       containers:
+18       - name: hello-world-configmap
+19         image: "enabledocker/hello-world-configmap:1.0"
+20         imagePullPolicy: Always
+21         env:
+22         - name: PORT
+23           value: "80"
+24         - name: HELLOWORLD
+25           valueFrom:
+26             configMapKeyRef:
+27               name: hello-world
+28               key: helloworld

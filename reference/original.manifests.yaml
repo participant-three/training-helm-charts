@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: hello-world
+---
+apiVersion: v1
+data:
+  helloworld: kwarktasjes
+kind: ConfigMap
+metadata:
+  name: hello-world
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-configmap
+  labels:
+    app: hello-world-configmap
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello-world-configmap
+  template:
+    metadata:
+      labels:
+        app: hello-world-configmap
+    spec:
+      containers:
+      - name: hello-world-configmap
+        image: "enabledocker/hello-world-configmap:1.0"
+        imagePullPolicy: Always
+        env:
+        - name: PORT
+          value: "80"
+        - name: HELLOWORLD
+          valueFrom:
+            configMapKeyRef:
+              name: hello-world
+              key: helloworld
+---
+apiVersion: networking.k8s.io/v1
+ 2 kind: Ingress
+ 3 metadata:
+ 4   name: hello-world.part3.xyz-rules
+ 5   annotations:
+ 6     kubernetes.io/tls-acme: "true"
+ 7 spec:
+ 8   ingressClassName: nginx
+ 9   rules:
+10   - host: hello-world.part3.xyz
+11     http:
+12       paths:
+13       - path: /
+14         pathType: Prefix
+15         backend:
+16           service:
+17             name: hello-world-configmap
+18             port:
+19                 number: 80
+20   tls:
+21   - secretName: hello-world.part3.xyz-tls
+22     hosts:
+23     - hello-world.part3.xyz
